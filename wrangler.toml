@@ -7,5 +7,10 @@ routes = [
   { pattern = "wwwmw.captainpragmatic.com/*", zone_name = "captainpragmatic.com" }
 ]
 
+# KV Namespaces for rate limiting
+[[kv_namespaces]]
+binding = "RATE_LIMITER"
+id = "7df58aefa30f4310aac5a55e2e635801"
+
 [vars]
 ENVIRONMENT = "production"

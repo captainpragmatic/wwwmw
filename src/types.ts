@@ -42,6 +42,7 @@ export interface ScoreConfig {
 
 export interface Env {
   GOOGLE_PAGESPEED_API_KEY: string;
+  RATE_LIMITER: KVNamespace;
 }
 
 export interface DNSResponse {

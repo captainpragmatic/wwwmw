@@ -13,6 +13,12 @@ import {
   identifyCriticalIssues,
   generateRecommendations
 } from './utils/scoring';
+import {
+  checkRateLimit,
+  getClientIP,
+  rateLimitResponse,
+  addRateLimitHeaders
+} from './utils/rate-limit';
 
 // Service imports
 import { checkSSL } from './services/ssl-check';
@@ -187,12 +193,20 @@ export default {
 
     const url = new URL(request.url);
 
-    // Health check endpoint
+    // Health check endpoint (no rate limiting)
     if (url.pathname === '/health') {
       return new Response('OK', {
         status: 200,
         headers: corsHeaders
       });
+    }
+
+    // Check rate limit for all other requests
+    const clientIP = getClientIP(request);
+    const rateLimitResult = await checkRateLimit(env.RATE_LIMITER, clientIP);
+
+    if (!rateLimitResult.allowed) {
+      return rateLimitResponse(rateLimitResult.resetAt);
     }
 
     // Main scan endpoint
@@ -203,7 +217,8 @@ export default {
         return validationErrorResponse('Missing url parameter');
       }
 
-      return handleScan(targetUrl, env);
+      const response = await handleScan(targetUrl, env);
+      return addRateLimitHeaders(response, rateLimitResult);
     }
 
     // 404 for all other routes
