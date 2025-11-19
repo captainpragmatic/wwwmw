@@ -1,0 +1,107 @@
+/**
+ * Scoring and recommendation logic
+ */
+
+import type { CheckResults, ScoreConfig } from '../types';
+
+const SCORE_LEVELS: ScoreConfig[] = [
+  { min: 85, max: 100, level: 'EXCELLENT - Great website health!', color: '#28a745' },
+  { min: 70, max: 84, level: 'GOOD - Minor improvements needed', color: '#17a2b8' },
+  { min: 50, max: 69, level: 'NEEDS WORK - Several issues to fix', color: '#ffc107' },
+  { min: 0, max: 49, level: 'POOR - Serious problems detected', color: '#dc3545' }
+];
+
+export function calculateOverallScore(checks: CheckResults): number {
+  const scores = [
+    checks.ssl.score,
+    checks.dns.score,
+    checks.serverResponse.score,
+    checks.pageSpeed.score,
+    checks.mobile.score,
+    checks.https.score,
+    checks.availability.score,
+    checks.email.score
+  ];
+
+  return scores.reduce((sum, score) => sum + score, 0);
+}
+
+export function getScoreLevel(score: number): { level: string; color: string } {
+  const config = SCORE_LEVELS.find(
+    (level) => score >= level.min && score <= level.max
+  );
+
+  return {
+    level: config?.level || 'Unknown',
+    color: config?.color || '#6c757d'
+  };
+}
+
+export function identifyCriticalIssues(checks: CheckResults): string[] {
+  const issues: string[] = [];
+
+  if (checks.ssl.status === 'fail') {
+    issues.push('No HTTPS - Site is insecure');
+  }
+
+  if (checks.availability.status === 'fail') {
+    issues.push('Site is currently offline');
+  }
+
+  if (checks.serverResponse.status === 'fail') {
+    issues.push('Server response is very slow');
+  }
+
+  if (checks.pageSpeed.status === 'fail') {
+    issues.push('Poor page performance - significantly impacts user experience');
+  }
+
+  return issues;
+}
+
+export function generateRecommendations(checks: CheckResults): string[] {
+  const recommendations: string[] = [];
+
+  // SSL/HTTPS recommendations
+  if (checks.ssl.status === 'fail' || checks.https.status === 'fail') {
+    recommendations.push('Enable HTTPS with Let\'s Encrypt (free, 30 min setup)');
+  }
+
+  // PageSpeed recommendations
+  if (checks.pageSpeed.status === 'fail') {
+    recommendations.push('Optimize images and enable caching to improve load times');
+  } else if (checks.pageSpeed.status === 'warn') {
+    recommendations.push('Consider optimizing images and minifying CSS/JS for better performance');
+  }
+
+  // Server response recommendations
+  if (checks.serverResponse.status === 'fail') {
+    recommendations.push('Consider upgrading hosting for faster response times');
+  } else if (checks.serverResponse.status === 'warn') {
+    recommendations.push('Server response could be faster - consider CDN or server optimization');
+  }
+
+  // DNS recommendations
+  if (checks.dns.status === 'fail') {
+    recommendations.push('Consider using a faster DNS provider like Cloudflare');
+  }
+
+  // Mobile recommendations
+  if (checks.mobile.status === 'fail') {
+    recommendations.push('Improve mobile responsiveness and mobile-specific optimizations');
+  } else if (checks.mobile.status === 'warn') {
+    recommendations.push('Fine-tune mobile experience for better user engagement');
+  }
+
+  // Email recommendations
+  if (checks.email.status === 'warn') {
+    recommendations.push('Configure MX records to enable email for your domain');
+  }
+
+  // If everything is good
+  if (recommendations.length === 0) {
+    recommendations.push('Great job! Keep monitoring your site regularly');
+  }
+
+  return recommendations;
+}

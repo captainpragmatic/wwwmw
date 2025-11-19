@@ -1,0 +1,11 @@
+name = "wwwmw-api"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+
+# Custom domain
+routes = [
+  { pattern = "wwwmw.captainpragmatic.com/*", zone_name = "captainpragmatic.com" }
+]
+
+[vars]
+ENVIRONMENT = "production"

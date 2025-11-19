@@ -1,0 +1,20 @@
+{
+  "name": "wwwmw-api",
+  "version": "1.0.0",
+  "description": "What's Wrong With My Website - Cloudflare Worker API for website diagnostics",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "build": "tsc",
+    "test": "echo \"No tests yet\" && exit 0"
+  },
+  "keywords": ["cloudflare", "workers", "website-scanner", "diagnostics"],
+  "author": "Captain Pragmatic",
+  "license": "MIT",
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20231218.0",
+    "typescript": "^5.3.3",
+    "wrangler": "^3.22.1"
+  }
+}
