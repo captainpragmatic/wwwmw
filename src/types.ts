@@ -2,7 +2,7 @@
  * Type definitions for WWWMW API
  */
 
-export type CheckStatus = 'pass' | 'warn' | 'fail';
+export type CheckStatus = "pass" | "warn" | "fail";
 
 export interface CheckResult {
   status: CheckStatus;
@@ -47,6 +47,7 @@ export interface Env {
 
 export interface DNSResponse {
   Status: number;
+  AD?: boolean; // Authenticated Data flag (DNSSEC)
   Answer?: Array<{
     name: string;
     type: number;
@@ -63,15 +64,15 @@ export interface PageSpeedResponse {
       };
     };
     audits: {
-      'first-contentful-paint': {
+      "first-contentful-paint": {
         displayValue: string;
         numericValue: number;
       };
-      'largest-contentful-paint': {
+      "largest-contentful-paint": {
         displayValue: string;
         numericValue: number;
       };
-      'cumulative-layout-shift': {
+      "cumulative-layout-shift": {
         displayValue: string;
         numericValue: number;
       };
