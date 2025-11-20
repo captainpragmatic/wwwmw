@@ -1,22 +1,22 @@
 /**
  * DNS Speed Check Service
- * 
+ *
  * Measures DNS resolution performance using dual DNS-over-HTTPS providers (Cloudflare and Google).
  * Provides actionable insights including DNSSEC validation and CDN detection.
- * 
+ *
  * Key Features:
  * - Dual provider queries (Cloudflare + Google) for redundancy and accuracy
  * - Tightened thresholds: <75ms pass, 75-149ms warn, ≥150ms fail
  * - DNSSEC validation detection via AD (Authenticated Data) flag
  * - CDN detection via IP range and CNAME pattern matching
  * - Backward-compatible response structure (preserves `responseTime` field)
- * 
+ *
  * Performance Thresholds Rationale:
  * - <20ms: Excellent (edge/Anycast DNS with geographic proximity)
  * - <75ms: Fast (modern DNS providers like Cloudflare, Google, Route53)
  * - 75-149ms: Moderate (acceptable but room for improvement)
  * - ≥150ms: Slow (noticeable user impact, consider DNS optimization)
- * 
+ *
  * @see docs/ADR-001-dns-speed-check-enhancement.md for full decision context
  */
 
@@ -25,14 +25,14 @@ import { extractHostname } from "../utils/validation";
 
 /**
  * Query a single DNS provider via DNS-over-HTTPS (DoH)
- * 
+ *
  * Uses the DNS JSON API format supported by both Cloudflare and Google.
  * Times the complete request/response cycle including network latency.
- * 
+ *
  * @param hostname - The domain to resolve (e.g., "example.com")
  * @param providerUrl - The DoH endpoint URL (without query params)
  * @returns Object containing response time in ms and parsed DNS data (or null if failed)
- * 
+ *
  * @example
  * const result = await queryDNSProvider("example.com", "https://cloudflare-dns.com/dns-query");
  * // Returns: { time: 45, data: { Status: 0, Answer: [...] } }
@@ -74,24 +74,24 @@ async function queryDNSProvider(
 
 /**
  * Detect if DNS resolution points to a known CDN provider
- * 
+ *
  * Checks both IP address ranges and CNAME patterns to identify CDN usage.
  * This is informational only and doesn't affect pass/fail status.
- * 
+ *
  * Detection Methods:
  * 1. IP Range Matching: Check if A records fall within known CDN IP blocks
  * 2. Pattern Matching: Check for CDN-specific keywords in CNAMEs/names
- * 
+ *
  * Supported CDNs:
  * - Cloudflare (104.16-31.*, 172.64-127.*, *.cloudflare.*)
  * - Fastly (151.101.*, *.fastly.*)
  * - Akamai (*.akamai.*, *.edgekey.*, *.edgesuite.*)
  * - AWS CloudFront (*.cloudfront.*)
- * - Generic CDN patterns (*/cdn/i)
- * 
+ * - Generic CDN patterns (/cdn/i regex)
+ *
  * @param answers - Array of DNS answer records from DoH response
  * @returns true if CDN detected, false otherwise
- * 
+ *
  * Note: Optimized for high recall (catch most CDNs) over precision.
  * False positives are acceptable since this is informational only.
  */
@@ -129,14 +129,14 @@ function detectCDN(answers: Array<{ data: string; name: string }>): boolean {
 
 /**
  * Check DNS resolution speed and configuration
- * 
+ *
  * Main entry point for DNS speed check. Queries dual DNS providers in parallel,
  * calculates performance metrics, validates DNSSEC, detects CDN usage, and generates
  * a comprehensive check result with actionable recommendations.
- * 
+ *
  * @param url - The full URL to check (e.g., "https://example.com")
  * @returns CheckResult with status, message, score, and detailed metrics
- * 
+ *
  * Response Structure:
  * ```typescript
  * {
