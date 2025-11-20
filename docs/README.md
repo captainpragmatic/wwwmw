@@ -21,6 +21,7 @@ Each ADR follows this structure:
 ### Current ADRs
 
 - **[ADR-001: DNS Speed Check Enhancement](./ADR-001-dns-speed-check-enhancement.md)** - Enhanced DNS checking with dual providers, DNSSEC validation, and CDN detection
+- **[ADR-002: SSL Certificate Monitoring](./ADR-002-ssl-certificate-monitoring.md)** - Certificate expiration monitoring using Certificate Transparency logs with graceful fallback
 
 ## Contributing
 
