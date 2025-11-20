@@ -85,10 +85,23 @@ export function generateRecommendations(checks: CheckResults): string[] {
   const recommendations: string[] = [];
 
   // SSL/HTTPS recommendations
+  const sslDetails = checks.ssl.details || {};
+  
   if (checks.ssl.status === "fail" || checks.https.status === "fail") {
     recommendations.push(
       "Enable HTTPS with Let's Encrypt (free, 30 min setup)"
     );
+  } else if (checks.ssl.status === "warn") {
+    // Check for certificate expiration warning
+    if (sslDetails.expiringSoon || (sslDetails.daysUntilExpiry && sslDetails.daysUntilExpiry < 30)) {
+      recommendations.push(
+        `Renew your SSL certificate soon (expires in ${sslDetails.daysUntilExpiry} days)`
+      );
+    } else if (sslDetails.expired) {
+      recommendations.push(
+        "Your SSL certificate has expired - renew immediately to maintain security"
+      );
+    }
   }
 
   // PageSpeed recommendations
