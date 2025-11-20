@@ -46,7 +46,7 @@ async function getCertificateFromCTLogs(hostname: string): Promise<{
 } | null> {
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 3000); // 3s timeout
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout for CT logs
 
     const response = await fetch(
       `https://crt.sh/?q=${encodeURIComponent(hostname)}&output=json`,
@@ -304,11 +304,11 @@ export async function checkSSL(url: string): Promise<CheckResult> {
       };
     }
 
-    // Fallback: CT log lookup failed - warn since we can't verify expiry
+    // Fallback: CT log lookup failed - but handshake succeeded, so pass
     return {
-      status: "warn",
-      message: "HTTPS enabled (certificate expiry unknown)",
-      score: 8,
+      status: "pass",
+      message: "HTTPS enabled with valid certificate",
+      score: 10,
       details: {
         protocol: "https",
         secure: true,

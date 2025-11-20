@@ -225,7 +225,8 @@ Worker → [Your API] → TLS.connect() → Target
 ⚠️ **24-48 hour lag** - Newly issued certs won't show immediately (acceptable)  
 ⚠️ **No revocation check** - Doesn't detect revoked certificates (rare edge case)  
 ⚠️ **Potential rate limits** - High volume could hit crt.sh limits (future: add caching)  
-⚠️ **Performance variance** - CT lookup adds 200-500ms (timeout after 3s)
+⚠️ **Performance variance** - CT lookup adds 1-10s depending on certificate history (timeout after 10s)  
+⚠️ **Certificate selection** - Returns most recent valid cert from CT logs, may differ from server's active cert (both valid)
 
 ### Neutral
 
@@ -241,13 +242,15 @@ Worker → [Your API] → TLS.connect() → Target
 
 ```typescript
 const controller = new AbortController();
-const timeoutId = setTimeout(() => controller.abort(), 3000);
-// 3-second timeout prevents slow CT logs from blocking
+const timeoutId = setTimeout(() => controller.abort(), 10000);
+// 10-second timeout prevents slow CT logs from blocking
 ```
 
 **Rationale:**
 
-- 3 seconds is generous (most CT queries: 200-500ms)
+- 10 seconds accommodates crt.sh response times (typically 1-5s, occasionally 8-10s for domains with many certificates)
+- Initial implementation used 3s timeout, but testing revealed domains with 300+ historical certificates (like mostlyvirtual.com) need longer
+- Timeout still prevents indefinite hangs while allowing CT lookup to complete
 - Prevents blocking user experience
 - Falls back gracefully on timeout
 

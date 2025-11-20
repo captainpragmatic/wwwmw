@@ -9,12 +9,17 @@
     "build": "tsc",
     "test": "echo \"No tests yet\" && exit 0"
   },
-  "keywords": ["cloudflare", "workers", "website-scanner", "diagnostics"],
+  "keywords": [
+    "cloudflare",
+    "workers",
+    "website-scanner",
+    "diagnostics"
+  ],
   "author": "Captain Pragmatic",
   "license": "MIT",
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20231218.0",
     "typescript": "^5.3.3",
-    "wrangler": "^3.22.1"
+    "wrangler": "^4.50.0"
   }
 }
