@@ -3,7 +3,7 @@
  * Measures Time To First Byte (TTFB)
  */
 
-import type { CheckResult } from '../types';
+import type { CheckResult } from "../types";
 
 export async function checkServerResponse(url: string): Promise<CheckResult> {
   try {
@@ -13,9 +13,13 @@ export async function checkServerResponse(url: string): Promise<CheckResult> {
     const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
 
     const response = await fetch(url, {
-      method: 'HEAD',
+      method: "HEAD",
       signal: controller.signal,
-      redirect: 'follow'
+      redirect: "follow",
+      headers: {
+        "User-Agent":
+          "WWWMW/1.0 (+https://captainpragmatic.com/tools/website-health-scanner)",
+      },
     });
 
     clearTimeout(timeoutId);
@@ -25,64 +29,64 @@ export async function checkServerResponse(url: string): Promise<CheckResult> {
     const details = {
       ttfb,
       statusCode: response.status,
-      statusText: response.statusText
+      statusText: response.statusText,
     };
 
     // Check for successful response
     if (response.status < 200 || response.status >= 400) {
       return {
-        status: 'warn',
+        status: "warn",
         message: `Server returned ${response.status} status`,
         score: 5,
-        details
+        details,
       };
     }
 
     // Score based on TTFB
     if (ttfb < 200) {
       return {
-        status: 'pass',
+        status: "pass",
         message: `Fast server response (${ttfb}ms TTFB)`,
         score: 15,
-        details
+        details,
       };
     } else if (ttfb < 500) {
       return {
-        status: 'warn',
+        status: "warn",
         message: `Moderate server response (${ttfb}ms TTFB)`,
         score: 10,
-        details
+        details,
       };
     } else {
       return {
-        status: 'fail',
+        status: "fail",
         message: `Slow server response (${ttfb}ms TTFB)`,
         score: 5,
-        details
+        details,
       };
     }
   } catch (error: any) {
-    const errorMessage = error.message || 'Unknown error';
+    const errorMessage = error.message || "Unknown error";
 
-    if (error.name === 'AbortError') {
+    if (error.name === "AbortError") {
       return {
-        status: 'fail',
-        message: 'Server response timed out (>10s)',
+        status: "fail",
+        message: "Server response timed out (>10s)",
         score: 0,
         details: {
-          error: 'Timeout',
-          ttfb: 10000
-        }
+          error: "Timeout",
+          ttfb: 10000,
+        },
       };
     }
 
     return {
-      status: 'fail',
-      message: 'Unable to reach server',
+      status: "fail",
+      message: "Unable to reach server",
       score: 0,
       details: {
-        error: errorMessage
-      }
+        error: errorMessage,
+      },
     };
   }
 }

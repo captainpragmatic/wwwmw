@@ -3,7 +3,7 @@
 A standalone TypeScript Cloudflare Worker API that scans websites and returns comprehensive health reports.
 
 **Live API:** https://wwwmw.captainpragmatic.com
-**Frontend:** https://captainpragmatic.com/tools/website-scanner
+**Frontend:** https://captainpragmatic.com/tools/website-health-scanner
 
 ## Features
 
@@ -38,12 +38,15 @@ src/
 ### Endpoints
 
 #### `GET /?url=<target_url>`
+
 Scan a website and return health report.
 
 **Parameters:**
+
 - `url` (required): Website URL to scan (http:// or https://)
 
 **Response:**
+
 ```json
 {
   "url": "https://example.com",
@@ -54,11 +57,31 @@ Scan a website and return health report.
   "checks": {
     "ssl": { "status": "pass", "message": "...", "score": 10, "details": {} },
     "dns": { "status": "pass", "message": "...", "score": 10, "details": {} },
-    "serverResponse": { "status": "pass", "message": "...", "score": 15, "details": {} },
-    "pageSpeed": { "status": "warn", "message": "...", "score": 10, "details": {} },
-    "mobile": { "status": "pass", "message": "...", "score": 15, "details": {} },
+    "serverResponse": {
+      "status": "pass",
+      "message": "...",
+      "score": 15,
+      "details": {}
+    },
+    "pageSpeed": {
+      "status": "warn",
+      "message": "...",
+      "score": 10,
+      "details": {}
+    },
+    "mobile": {
+      "status": "pass",
+      "message": "...",
+      "score": 15,
+      "details": {}
+    },
     "https": { "status": "pass", "message": "...", "score": 10, "details": {} },
-    "availability": { "status": "pass", "message": "...", "score": 15, "details": {} },
+    "availability": {
+      "status": "pass",
+      "message": "...",
+      "score": 15,
+      "details": {}
+    },
     "email": { "status": "pass", "message": "...", "score": 10, "details": {} }
   },
   "criticalIssues": [],
@@ -67,15 +90,18 @@ Scan a website and return health report.
 ```
 
 **Status Codes:**
+
 - `200`: Scan successful
 - `400`: Invalid URL or missing parameter
 - `404`: Endpoint not found
 - `500`: Internal server error
 
 #### `GET /health`
+
 Health check endpoint.
 
 **Response:**
+
 ```
 OK
 ```
@@ -91,6 +117,7 @@ OK
 ### Installation
 
 1. **Clone and install dependencies:**
+
    ```bash
    git clone https://github.com/captainpragmatic/wwwmw.git
    cd wwwmw
@@ -98,11 +125,13 @@ OK
    ```
 
 2. **Login to Cloudflare:**
+
    ```bash
    npx wrangler login
    ```
 
 3. **Get Google PageSpeed API Key:**
+
    - Go to https://console.cloud.google.com/apis/credentials
    - Enable "PageSpeed Insights API"
    - Create Credentials → API Key
@@ -110,6 +139,7 @@ OK
    - Copy the key
 
 4. **Configure secrets for local development:**
+
    ```bash
    # Wrangler uses .dev.vars for local development secrets
    echo "GOOGLE_PAGESPEED_API_KEY=your_api_key_here" > .dev.vars
@@ -133,6 +163,7 @@ curl "http://localhost:8787/?url=https://google.com"
 ### Option 1: Automatic (GitHub Actions)
 
 1. **Add GitHub Secrets:**
+
    - Go to https://github.com/captainpragmatic/wwwmw/settings/secrets/actions
    - Add `CLOUDFLARE_API_TOKEN`:
      - Cloudflare Dashboard → My Profile → API Tokens
@@ -143,6 +174,7 @@ curl "http://localhost:8787/?url=https://google.com"
      - Use API key from setup step above
 
 2. **Deploy:**
+
    ```bash
    git add .
    git commit -m "Update worker"
@@ -179,6 +211,7 @@ Configure custom domain in Cloudflare Dashboard:
 4. Add route: `wwwmw.captainpragmatic.com/*` → Worker: `wwwmw-api`
 
 Or configure via `wrangler.toml` (already set):
+
 ```toml
 routes = [
   { pattern = "wwwmw.captainpragmatic.com/*", zone_name = "captainpragmatic.com" }
@@ -214,18 +247,19 @@ curl "https://wwwmw.captainpragmatic.com/"                          # Missing pa
 
 **Total: 100 points**
 
-| Check | Points | Criteria |
-|-------|--------|----------|
-| SSL | 10 | HTTPS enabled & valid certificate |
-| DNS | 10 | <200ms=pass, 200-500ms=warn, >500ms=fail |
-| Server Response | 15 | TTFB <200ms=pass, 200-500ms=warn, >500ms=fail |
-| PageSpeed | 15 | Score ≥90=pass, 50-89=warn, <50=fail |
-| Mobile | 15 | Derived from PageSpeed mobile score |
-| HTTPS | 10 | Secure protocol & valid SSL |
-| Availability | 15 | 2xx status code |
-| Email Config | 10 | MX records configured |
+| Check           | Points | Criteria                                      |
+| --------------- | ------ | --------------------------------------------- |
+| SSL             | 10     | HTTPS enabled & valid certificate             |
+| DNS             | 10     | <200ms=pass, 200-500ms=warn, >500ms=fail      |
+| Server Response | 15     | TTFB <200ms=pass, 200-500ms=warn, >500ms=fail |
+| PageSpeed       | 15     | Score ≥90=pass, 50-89=warn, <50=fail          |
+| Mobile          | 15     | Derived from PageSpeed mobile score           |
+| HTTPS           | 10     | Secure protocol & valid SSL                   |
+| Availability    | 15     | 2xx status code                               |
+| Email Config    | 10     | MX records configured                         |
 
 **Score Levels:**
+
 - 85-100: EXCELLENT - Great website health! (green #28a745)
 - 70-84: GOOD - Minor improvements needed (blue #17a2b8)
 - 50-69: NEEDS WORK - Several issues to fix (yellow #ffc107)
@@ -234,10 +268,12 @@ curl "https://wwwmw.captainpragmatic.com/"                          # Missing pa
 ## Monitoring
 
 View analytics in Cloudflare Dashboard:
+
 - Workers & Pages → wwwmw-api → Analytics
 - Metrics: Requests, CPU time, errors, duration
 
 Real-time logs:
+
 ```bash
 npx wrangler tail
 ```
@@ -245,30 +281,36 @@ npx wrangler tail
 ## Cost
 
 **Free tier (up to 100k requests/day):**
+
 - Cloudflare Workers: $0
 - Google PageSpeed API: $0 (25,000 queries/day free)
 
 **Expected usage:**
+
 - <10k requests/month initially
 - $0/month cost
 
 ## Troubleshooting
 
 ### API returns 500 error
+
 - Check Cloudflare Workers logs: `npx wrangler tail`
 - Verify `GOOGLE_PAGESPEED_API_KEY` secret is set
 - Check PageSpeed API quota: https://console.cloud.google.com/apis/api/pagespeedonline.googleapis.com/quotas
 
 ### CORS errors in browser
+
 - Verify CORS origin in `src/utils/cors.ts`
 - Check response headers include `Access-Control-Allow-Origin`
 
 ### PageSpeed check times out
+
 - API has 30-second timeout
 - Slow sites may exceed this
 - System gracefully degrades (returns warning with 8 points)
 
 ### DNS checks fail
+
 - Cloudflare DNS-over-HTTPS may be blocked in some networks
 - Check firewall rules
 

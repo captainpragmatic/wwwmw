@@ -52,7 +52,8 @@ async function getCertificateFromCTLogs(hostname: string): Promise<{
       `https://crt.sh/?q=${encodeURIComponent(hostname)}&output=json`,
       {
         headers: {
-          "User-Agent": "WWWMW-Scanner/1.0",
+          "User-Agent":
+            "WWWMW/1.0 (+https://captainpragmatic.com/tools/website-health-scanner)",
         },
         signal: controller.signal,
       }
@@ -191,6 +192,10 @@ export async function checkSSL(url: string): Promise<CheckResult> {
         method: "HEAD",
         signal: controller.signal,
         redirect: "follow",
+        headers: {
+          "User-Agent":
+            "WWWMW/1.0 (+https://captainpragmatic.com/tools/website-health-scanner)",
+        },
       });
 
       clearTimeout(timeoutId);
